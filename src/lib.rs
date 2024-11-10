@@ -2,9 +2,11 @@ pub mod rbxcdn;
 pub mod bindings;
 pub mod error;
 
+#[allow(dead_code)]
 static PLAYER_IGNORE_MANIFEST_PACKAGES: [&str; 1] = [
 	"RobloxPlayerLauncher.exe",
 ];
+#[allow(dead_code)]
 static STUDIO_IGNORE_MANIFEST_PACKAGES: [&str; 1] = [
 	"RobloxStudioLauncherBeta.exe",
 ];
