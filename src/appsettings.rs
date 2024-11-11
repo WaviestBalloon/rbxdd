@@ -1,4 +1,5 @@
-pub static xml_data: String = "\
+/// XML data for AppSettings.xml
+pub static XML_DATA: &str = "\
 <?xml version=\"1.0\" encoding=\"UTF-8\"?>
 <Settings>
 	<ContentFolder>content</ContentFolder>

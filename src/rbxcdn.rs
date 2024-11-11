@@ -97,7 +97,6 @@ pub fn get_latest_version(binary: Binary, channel: Option<&str>) -> Result<Strin
 /// 
 /// ## Errors
 /// 
-/// - `NoAccessError`, the provided channel is restricted.
 /// - `NotFoundError`, the provided channel does not exist.
 pub fn get_manifest(version_hash: String) -> Result<Manifest, String> {
 	let pkg_manifest_url = format!("{}/{}-rbxPkgManifest.txt", bindings::DEPLOYMENT_CDN, version_hash); // E.g. roblox-setup.cachefly.net/version-2355c01e37774010-rbxPkgManifest.txt
@@ -116,10 +115,10 @@ pub fn get_manifest(version_hash: String) -> Result<Manifest, String> {
 	let http_code = curl.response_code().unwrap();
 	match http_code {
 		200 => {},
-		403 => return Err(NoAccessError {
+		403 => return Err(NotFoundError {
 			http_code,
 			http_body: String::from_utf8(response).unwrap(),
-			message: "ClientSettings endpoint returned 403 Forbidden".to_string()
+			message: "Manifest does not exist".to_string()
 		}.to_string()),
 		_ => return Err(format!("Failed to get latest version, response code: {}", http_code))
 	}
@@ -133,8 +132,6 @@ pub fn get_manifest(version_hash: String) -> Result<Manifest, String> {
 		version: manifest_vec[0].to_string(), // First line of the manifest is the version
 		contents: Vec::new()
 	};
-
-	println!("{:?}", manifest_vec);
 
 	for (i, package_string) in manifest_vec.iter().enumerate().skip(1) { // Skip version line
 		if (i + 1) % 2 == 0 || package_string.parse::<usize>().is_ok() { // TODO: make this better, it hurts to look at - skip over number entries as well

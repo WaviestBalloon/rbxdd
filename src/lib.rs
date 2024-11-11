@@ -1,6 +1,7 @@
 pub mod rbxcdn;
 pub mod bindings;
 pub mod error;
+pub mod appsettings;
 
 #[allow(dead_code)]
 static PLAYER_IGNORE_MANIFEST_PACKAGES: [&str; 1] = [
