@@ -25,7 +25,7 @@ mod tests {
 	#[test]
 	fn get_latest_version_hash_from_channel() {
 		let version_player = rbxcdn::get_latest_version(rbxcdn::Binary::Player, Some("LIVE")).unwrap();
-		let version_studio = rbxcdn::get_latest_version(rbxcdn::Binary::Player, Some("LIVE")).unwrap();
+		let version_studio = rbxcdn::get_latest_version(rbxcdn::Binary::Studio, Some("LIVE")).unwrap();
 		assert_eq!(version_player.len(), 24);
 		assert_eq!(version_studio.len(), 24);
 	}
