@@ -70,8 +70,7 @@ pub fn get_latest_version(binary: Binary, channel: Option<&str>) -> Result<Strin
 		_ => return Err(format!("Failed to get latest version, response code: {}", http_code))
 	}
 
-	let string_readable = String::from_utf8(response).unwrap();
-	let json: Value = serde_json::from_str(&string_readable).unwrap();
+	let json: Value = serde_json::from_slice(&response).unwrap();
 
 	Ok(json["clientVersionUpload"].as_str().unwrap().to_string())
 }
@@ -114,12 +113,11 @@ pub fn get_manifest(version_hash: String) -> Result<Manifest, String> {
 			http_body: String::from_utf8(response).unwrap(),
 			message: "Manifest does not exist".to_string()
 		}.to_string()),
-		_ => return Err(format!("Failed to get latest version, response code: {}", http_code))
+		_ => return Err(format!("Failed to get manifest, response code: {}", http_code))
 	}
 
 	let string_readable = String::from_utf8(response).unwrap();
 	let manifest_vec = string_readable.split('\n')
-		.collect::<Vec<&str>>().iter()
 		.map(|s| s.trim())
 		.collect::<Vec<&str>>(); // Parse the manifest into a vector of strings while also trimming out `\r` and the new line at the end of the response
 	let mut manifest = Manifest { // TODO: messy :(

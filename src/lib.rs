@@ -15,8 +15,7 @@ static STUDIO_IGNORE_MANIFEST_PACKAGES: [&str; 1] = [
 #[cfg(test)]
 mod tests {
 	use core::panic;
-
-use super::*;
+	use super::*;
 
 	#[test]
 	fn get_latest_version_hash() {
