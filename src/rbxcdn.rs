@@ -36,8 +36,7 @@ pub enum Binary {
 /// 
 /// ## Errors
 /// 
-/// - `NoAccessError`, the provided channel is restricted.
-/// - `NotFoundError`, the provided channel does not exist.
+/// - `NoAccessError`, the provided channel is restricted or is invalid.
 pub fn get_latest_version(binary: Binary, channel: Option<&str>) -> Result<String, String> {
 	let base_clientsettings_url = match binary {
 		Binary::Player => bindings::LATEST_VERSION_PLAYER,
@@ -61,17 +60,12 @@ pub fn get_latest_version(binary: Binary, channel: Option<&str>) -> Result<Strin
 	}
 
 	let http_code = curl.response_code().unwrap();
-	match http_code {
+	match http_code { // Code 1 should be for invalid channels, but Roblox changed the endpoint's response behavior to always return code 5 regardless of the channel's existence
 		200 => {},
 		401 => return Err(NoAccessError { // The channel is restricted to Roblox employees only
 			http_code,
 			http_body: String::from_utf8(response).unwrap(),
-			message: format!("Channel {} is a restricted channel", channel.unwrap())
-		}.to_string()),
-		404 => return Err(NotFoundError { // The channel doesn't exist
-			http_code,
-			http_body: String::from_utf8(response).unwrap(),
-			message: format!("Channel {} is a invalid channel", channel.unwrap())
+			message: format!("Channel {} is a restricted or invalid channel", channel.unwrap())
 		}.to_string()),
 		_ => return Err(format!("Failed to get latest version, response code: {}", http_code))
 	}

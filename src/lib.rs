@@ -14,7 +14,9 @@ static STUDIO_IGNORE_MANIFEST_PACKAGES: [&str; 1] = [
 
 #[cfg(test)]
 mod tests {
-	use super::*;
+	use core::panic;
+
+use super::*;
 
 	#[test]
 	fn get_latest_version_hash() {
@@ -30,9 +32,28 @@ mod tests {
 		assert_eq!(version_studio.len(), 24);
 	}
 	#[test]
-	#[should_panic]
 	fn get_latest_version_hash_from_restricted_channel() {
-		rbxcdn::get_latest_version(rbxcdn::Binary::Player, Some("zbeta")).unwrap();
+		match rbxcdn::get_latest_version(rbxcdn::Binary::Player, Some("zbeta")) {
+			Ok(_) => {
+				panic!("Expected an error, got Ok");
+			},
+			Err(error) => {
+				eprintln!("{}", error);
+				assert!(error.contains("NoAccessError"));
+			}
+		}
+	}
+	#[test]
+	fn get_latest_version_hash_from_invalid_channel() {
+		match rbxcdn::get_latest_version(rbxcdn::Binary::Player, Some("abcdef1234567890")) {
+			Ok(_) => {
+				panic!("Expected an error, got Ok");
+			},
+			Err(error) => {
+				eprintln!("{}", error);
+				assert!(error.contains("NoAccessError"));
+			}
+		}
 	}
 	#[test]
 	fn get_manifest() {
