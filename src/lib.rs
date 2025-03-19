@@ -32,7 +32,7 @@ mod tests {
 	}
 	#[test]
 	fn get_latest_version_hash_from_restricted_channel() {
-		match rbxcdn::get_latest_version(rbxcdn::Binary::Player, Some("zbeta")) {
+		match rbxcdn::get_latest_version(rbxcdn::Binary::Player, Some("zprojecteliu")) {
 			Ok(_) => {
 				panic!("Expected an error, got Ok");
 			},
