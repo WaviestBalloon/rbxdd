@@ -1,6 +1,8 @@
+use core::str;
+
 use curl::easy::Easy;
 use serde_json::Value;
-use crate::{bindings, error::{NoAccessError, NotFoundError}};
+use crate::{bindings, error::{GetLatestVersionErrors, GetManifestErrors, NoAccessError, NotFoundError, UnexpectedStatusCode}};
 
 #[derive(Debug)]
 /// Struct containing manifest version and a vector of packages in the manifest
@@ -37,7 +39,8 @@ pub enum Binary {
 /// ## Errors
 /// 
 /// - `NoAccessError`, the provided channel is restricted or is invalid.
-pub fn get_latest_version(binary: Binary, channel: Option<&str>) -> Result<String, String> {
+/// - `UnexpectedStatusCode`, Roblox returned a status code which is not handled.
+pub fn get_latest_version(binary: Binary, channel: Option<&str>) -> Result<String, GetLatestVersionErrors> {
 	let base_clientsettings_url = match binary {
 		Binary::Player => bindings::LATEST_VERSION_PLAYER,
 		Binary::Studio => bindings::LATEST_VERSION_STUDIO
@@ -60,14 +63,19 @@ pub fn get_latest_version(binary: Binary, channel: Option<&str>) -> Result<Strin
 	}
 
 	let http_code = curl.response_code().unwrap();
+	let http_body = str::from_utf8(&response).unwrap();
 	match http_code { // Code 1 should be for invalid channels, but Roblox changed the endpoint's response behavior to always return code 5 regardless of the channel's existence
 		200 => {},
-		401 => return Err(NoAccessError { // The channel is restricted to Roblox employees only
+		401 => return Err(GetLatestVersionErrors::NoAccessError(NoAccessError { // The channel is restricted to Roblox employees only
 			http_code,
-			http_body: String::from_utf8(response).unwrap(),
+			http_body: http_body.to_string(),
 			message: format!("Channel {} is a restricted or invalid channel", channel.unwrap())
-		}.to_string()),
-		_ => return Err(format!("Failed to get latest version, response code: {}", http_code))
+		})),
+		_ => return Err(GetLatestVersionErrors::UnexpectedStatusCode(UnexpectedStatusCode {
+			http_code,
+			http_body: http_body.to_string(),
+			message: format!("Failed to get latest version, response code: {}", http_code)
+		}))
 	}
 
 	let json: Value = serde_json::from_slice(&response).unwrap();
@@ -91,7 +99,8 @@ pub fn get_latest_version(binary: Binary, channel: Option<&str>) -> Result<Strin
 /// ## Errors
 /// 
 /// - `NotFoundError`, the provided channel does not exist.
-pub fn get_manifest(version_hash: String) -> Result<Manifest, String> {
+/// - `UnexpectedStatusCode`, Roblox returned a status code which is not handled.
+pub fn get_manifest(version_hash: String) -> Result<Manifest, GetManifestErrors> {
 	let pkg_manifest_url = format!("{}/{}-rbxPkgManifest.txt", bindings::DEPLOYMENT_CDN, version_hash); // E.g. roblox-setup.cachefly.net/version-2355c01e37774010-rbxPkgManifest.txt
 	let mut curl = Easy::new();
 	curl.url(&pkg_manifest_url).unwrap();
@@ -106,14 +115,19 @@ pub fn get_manifest(version_hash: String) -> Result<Manifest, String> {
 	}
 
 	let http_code = curl.response_code().unwrap();
+	let http_body = str::from_utf8(&response).unwrap();
 	match http_code {
 		200 => {},
-		403 => return Err(NotFoundError {
+		403 => return Err(GetManifestErrors::NotFoundError(NotFoundError { // The channel is restricted to Roblox employees only
 			http_code,
 			http_body: String::from_utf8(response).unwrap(),
 			message: "Manifest does not exist".to_string()
-		}.to_string()),
-		_ => return Err(format!("Failed to get manifest, response code: {}", http_code))
+		})),
+		_ => return Err(GetManifestErrors::UnexpectedStatusCode(UnexpectedStatusCode {
+			http_code,
+			http_body: http_body.to_string(),
+			message: format!("Failed to get manifest, response code: {}", http_code)
+		}))
 	}
 
 	let string_readable = String::from_utf8(response).unwrap();

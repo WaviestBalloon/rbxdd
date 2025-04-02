@@ -11,10 +11,13 @@ static PLAYER_IGNORE_MANIFEST_PACKAGES: [&str; 1] = [
 static STUDIO_IGNORE_MANIFEST_PACKAGES: [&str; 1] = [
 	"RobloxStudioLauncherBeta.exe",
 ];
+#[allow(dead_code)]
+static BOGUS_TEST_STRING: &str = "abcdef1234567890";
 
 #[cfg(test)]
 mod tests {
 	use core::panic;
+	use crate::error::{GetLatestVersionErrors, GetManifestErrors};
 	use super::*;
 
 	#[test]
@@ -37,8 +40,8 @@ mod tests {
 				panic!("Expected an error, got Ok");
 			},
 			Err(error) => {
-				eprintln!("{}", error);
-				assert!(error.contains("NoAccessError"));
+				eprintln!("{:?}", error);
+				assert!(matches!(error, GetLatestVersionErrors::NoAccessError(_)));
 			}
 		}
 	}
@@ -49,8 +52,8 @@ mod tests {
 				panic!("Expected an error, got Ok");
 			},
 			Err(error) => {
-				eprintln!("{}", error);
-				assert!(error.contains("NoAccessError"));
+				eprintln!("{:?}", error);
+				assert!(matches!(error, GetLatestVersionErrors::NoAccessError(_)));
 			}
 		}
 	}
@@ -85,6 +88,18 @@ mod tests {
 				continue;
 			} else {
 				panic!("Unknown package: {} on Studio bindings", package_name);
+			}
+		}
+	}
+	#[test]
+	fn get_manifest_from_invalid_version_hash() {
+		match rbxcdn::get_manifest(BOGUS_TEST_STRING.to_string()) {
+			Ok(_) => {
+				panic!("Expected an error, got Ok");
+			},
+			Err(error) => {
+				eprintln!("{:?}", error);
+				assert!(matches!(error, GetManifestErrors::NotFoundError(_)));
 			}
 		}
 	}
