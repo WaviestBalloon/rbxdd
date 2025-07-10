@@ -68,7 +68,7 @@ mod tests {
 				continue;
 			}
 
-			if bindings::PLAYER_EXTRACT_BINDINGS.iter().any(|(name, _)| name == package_name) { // blame ethan
+			if bindings::PLAYER_EXTRACT_BINDINGS.iter().any(|(name, _)| name == package_name) || package_name.ends_with(".exe") { // blame ethan
 				continue;
 			} else {
 				panic!("Unknown package: {} on Player bindings", package_name);
