@@ -25,7 +25,7 @@ pub static PLAYER_EXTRACT_BINDINGS: [(&str, &str); 22] = [
 	("extracontent-textures.zip", "ExtraContent/textures/"),
 	("extracontent-places.zip", "ExtraContent/places/")
 ];
-pub static STUDIO_EXTRACT_BINDINGS: [(&str, &str); 33] = [
+pub static STUDIO_EXTRACT_BINDINGS: [(&str, &str); 35] = [
 	("ApplicationConfig.zip", "ApplicationConfig/"),
 	("redist.zip", ""),
 	("RobloxStudio.zip", ""),
@@ -49,6 +49,8 @@ pub static STUDIO_EXTRACT_BINDINGS: [(&str, &str); 33] = [
 	("extracontent-translations.zip", "ExtraContent/translations/"),
 	("extracontent-models.zip", "ExtraContent/models/"),
 	("extracontent-textures.zip", "ExtraContent/textures/"),
+	("studiocontent-models.zip", "StudioContent/models/"),
+	("studiocontent-textures.zip", "StudioContent/textures/"),
 	("shaders.zip", "shaders/"),
 	("BuiltInPlugins.zip", "BuiltInPlugins/"),
 	("BuiltInStandalonePlugins.zip", "BuiltInStandalonePlugins/"),
